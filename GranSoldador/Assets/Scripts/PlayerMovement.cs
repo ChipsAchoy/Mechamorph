@@ -45,11 +45,18 @@ public class PlayerMovement : MonoBehaviour
     public bool canDoubleJump = false;
     public bool canHook = false;
 
+    //Cosas del hook
+    public LineRenderer line;
+    public DistanceJoint2D distJoint;
+    public Vector2 hookingPos;
+    public bool hookableNear;
+
     //Efectos de las habilidades
     bool rolling = false;
     bool dashing = false;
     bool planing = false;
     bool goingUp = false;
+    bool hooking = false;
     private bool haventDashed = false;
     private bool haventPlaned = false;
     private bool haventDoubleJump = false;
@@ -64,7 +71,8 @@ public class PlayerMovement : MonoBehaviour
 
     void Start()
     {
-
+        distJoint.enabled = false;
+        line.enabled = false;
     }
 
     void Update()
@@ -112,6 +120,25 @@ public class PlayerMovement : MonoBehaviour
         }
 
 
+
+        if (Input.GetKeyDown(special) && hookableNear && canHook && !grounded)
+        {
+            distJoint.connectedAnchor = hookingPos;
+            line.SetPosition(0, transform.position);
+            line.SetPosition(1, hookingPos); 
+            distJoint.enabled = true;
+            line.enabled = true;
+        }
+        else if (Input.GetKeyUp(special) && canHook)
+        {
+            line.enabled = false;
+            distJoint.enabled = false;
+        }
+
+        if (distJoint.enabled)
+        {
+            line.SetPosition(0, transform.position);
+        }
 
         if (canRoll && climb){
             
@@ -244,5 +271,23 @@ public class PlayerMovement : MonoBehaviour
             }
         }
        
+    }
+
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Hookable")
+        {
+            hookableNear = true;
+            hookingPos = collision.transform.position;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "Hookable")
+        {
+            hookableNear = false;
+        }
     }
 }
