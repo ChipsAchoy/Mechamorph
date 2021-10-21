@@ -24,6 +24,9 @@ public class PlayerMovement : MonoBehaviour
 
     //RigidBody
     private Rigidbody2D body;
+    public float gravityPerception;
+    private float currentGravity;
+
     //Contador de colisiones
     private int currentCollisions = 0;
 
@@ -52,11 +55,11 @@ public class PlayerMovement : MonoBehaviour
     public bool hookableNear;
 
     //Efectos de las habilidades
-    bool rolling = false;
-    bool dashing = false;
-    bool planing = false;
-    bool goingUp = false;
-    bool hooking = false;
+    private bool rolling = false;
+    private bool dashing = false;
+    private bool planing = false;
+    private bool goingUp = false;
+    private bool hooking = false;
     private bool haventDashed = false;
     private bool haventPlaned = false;
     private bool haventDoubleJump = false;
@@ -73,6 +76,7 @@ public class PlayerMovement : MonoBehaviour
     {
         distJoint.enabled = false;
         line.enabled = false;
+        gravityPerception = body.gravityScale;
     }
 
     void Update()
@@ -115,6 +119,8 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
+            currentGravity = gravityPerception;
+            body.gravityScale = currentGravity;
             planing = false;
             timeForPlane = StartTimePlane;
         }
@@ -199,6 +205,8 @@ public class PlayerMovement : MonoBehaviour
             else
             {
                 Debug.Log("Down!");
+                currentGravity = 0;
+                body.gravityScale = currentGravity;
                 body.velocity = new Vector2(body.velocity.x, -planeVelDown);
             }
 
