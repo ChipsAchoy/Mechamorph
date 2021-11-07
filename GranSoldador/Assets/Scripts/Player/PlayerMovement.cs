@@ -10,7 +10,9 @@ public class PlayerMovement : MonoBehaviour
     public float velocidady;
     private float currentVel;
     public float accX;
-    
+    public float accWhileFalling;
+    public float velocidadWhileFalling;
+
     public float fallingImprove;
     public float fallingAtClimb;
    
@@ -91,8 +93,18 @@ public class PlayerMovement : MonoBehaviour
             lookingRight = false;
         }
 
-        currentVel = Mathf.Lerp(currentVel, Input.GetAxisRaw("Horizontal") * velocidadX, accX * Time.deltaTime);
-        body.velocity = new Vector2(currentVel, body.velocity.y);
+
+        if (grounded || canPlane || hooking)
+        {
+            currentVel = Mathf.Lerp(currentVel, Input.GetAxisRaw("Horizontal") * velocidadX, accX * Time.deltaTime);
+            body.velocity = new Vector2(currentVel, body.velocity.y);
+
+        }
+        else
+        {
+            currentVel = Mathf.Lerp(currentVel, Input.GetAxisRaw("Horizontal") * velocidadWhileFalling, accWhileFalling * Time.deltaTime);
+            body.velocity = new Vector2(currentVel, body.velocity.y);
+        }
 
 
 
@@ -134,11 +146,13 @@ public class PlayerMovement : MonoBehaviour
             line.SetPosition(1, hookingPos); 
             distJoint.enabled = true;
             line.enabled = true;
+            hooking = true;
         }
         else if (Input.GetKeyUp(special) && canHook)
         {
             line.enabled = false;
             distJoint.enabled = false;
+            hooking = false;
         }
 
         if (distJoint.enabled)
@@ -211,9 +225,7 @@ public class PlayerMovement : MonoBehaviour
             }
 
 
-
         }
-
 
 
         if (Input.GetKey(jump) && grounded ) 
@@ -286,6 +298,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if (collision.tag == "Hookable")
         {
+
             hookableNear = true;
             hookingPos = collision.transform.position;
         }
